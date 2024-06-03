@@ -36,9 +36,9 @@ This project is a Docker-based three-tier application for managing events. It us
 
 The application is divided into three main components:
 
-1. **Front-end**: An Angular application that displays event data to the users.
-2. **Backend API**: A Golang application that handles postgres CRUD operations on events and users.
-3. **GeoSpacial API**: A service for communicating with the backend API via gRPC, using MongoDB for location indexing and queries.
+1. **[Front-end](https://github.com/saltcodes/ezyevent-web)**: An Angular application that displays event data to the users.
+2. **[Backend API](https://github.com/saltcodes/ezyevent-api)**: A Golang application that handles postgres CRUD operations on events and users.
+3. **[GeoSpacial API](https://github.com/saltcodes/ezyevent-location-api)**: A service for communicating with the backend API via gRPC, using MongoDB for location indexing and queries.
 
 ![Architecture Diagram](path_to_architecture_diagram.png)
 
@@ -48,25 +48,19 @@ Ensure you have the following installed:
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
+- [MongoDB Atlass](https://www.mongodb.com/try/download/atlascli)
+- [pgAdmin](https://www.pgadmin.org/download/)
 
 ## Getting Started
 
 ### Installation
 
-1. Clone the repository:
+Clone the repository:
 
-    ```bash
-    git clone https://github.com/Johnyoat/ezy-event-deployment.git
-    cd ezy-event-deployment
-    ```
-
-2. Create a `.env` file based on the provided `.env.example`:
-
-    ```bash
-    cp .env.example .env
-    ```
-
-3. Customize the `.env` file to suit your needs.
+```bash
+git clone https://github.com/Johnyoat/ezy-event-deployment.git
+cd ezy-event-deployment
+```
 
 ### Usage
 
@@ -86,7 +80,38 @@ docker-compose down
 
 ## Configuration
 
-Detail the configuration options available in your `.env` file or other configuration files. Include specifics about configuring the Angular app, Golang backend, and MongoDB microservice.
+There's no password for mongodb but there's a password for postgres which is `qigfot-4Sobja-wixjut` and username `postgres`
+
+
+ ### Seting Up MongoDB with MongoDB Atlas
+
+1. Create a `ezyevents` database and  `ezyevents-location` collection:
+
+2. Import the [sample data](ezyevents.events-location.json) `ezyevents.events-location.json` into the `ezyevents-location` collection.
+
+3. Create a 2DSphere Indexing for the collection. You can read more [here](https://www.mongodb.com/docs/manual/core/indexes/index-types/geospatial/2dsphere/)
+
+```bash
+db.getCollection('ezyevents-location').createIndex({location:"2dsphere"})
+```
+
+### Setting Up Postgres
+
+1. create a `ezyevent` database:
+```sql
+createdb ezyevent;
+``` 
+
+2. Load the [sample data](ezyevent.sql) `ezyevent.sql` into the database.
+
+### Front-end 
+
+It's still a work in progress but you can clone it from here
+```bash
+git clone https://github.com/Johnyoat/ezy-event-deployment
+```
+
+Vist the [repo](https://github.com/Johnyoat/ezy-event-deployment) for more instructions
 
 ## Services
 
