@@ -1,0 +1,52 @@
+services:
+  postgres-database:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: qigfot-4Sobja-wixjut
+      PGDATA: /var/lib/postgressql/data
+    volumes:
+      - ./postgres:/var/lib/postgressql/data
+    restart: always
+    networks:
+      ezy-network:
+        ipv4_address: 192.168.92.13
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo:/data/db
+    restart: always
+    networks:
+      ezy-network:
+        ipv4_address: 192.168.92.15
+  ezy-event-api:
+    image: johnyoat/ezyevent-api:1.0
+    ports:
+      - "8080:8080"
+    links:
+      - postgres-database
+    networks:
+      ezy-network:
+        ipv4_address: 192.168.92.17
+    depends_on:
+      - postgres-database
+  ezy-event-location-api:
+    image: johnyoat/ezyevent-location-api:1.0
+    ports:
+      - "8081:8081"
+    links:
+      - "ezy-event-api"
+    networks:
+      ezy-network:
+        ipv4_address: 192.168.92.179     
+    depends_on:
+      - ezy-event-api
+networks:
+  ezy-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.92.0/24"
