@@ -2,6 +2,8 @@
 
 A Docker-based three-tier application for managing events, similar to Eventbrite. The application features an Angular front-end, a Golang backend, and a MongoDB-based microservice for location indexing and queries. Integrated monitoring is provided by Linkerd and Prometheus.
 
+![screenshot](https://res.cloudinary.com/plartfomx/image/upload/v1717611740/zagtyuep1qc8cmr0ytgc.png)
+
 ## Table of Contents
 
 - [Event Management Application](#event-management-application)
@@ -40,7 +42,7 @@ The application is divided into three main components:
 2. **[Backend API](https://github.com/saltcodes/ezyevent-api)**: A Golang application that handles postgres CRUD operations on events and users.
 3. **[GeoSpacial API](https://github.com/saltcodes/ezyevent-location-api)**: A service for communicating with the backend API via gRPC, using MongoDB for location indexing and queries.
 
-![Architecture Diagram](path_to_architecture_diagram.png)
+<img src="https://res.cloudinary.com/plartfomx/image/upload/v1717612408/xyrhty5j0tpndvrpzcor.png" alt="Architecture Diagram" height="350" width="80%">
 
 ## Prerequisites
 
@@ -168,7 +170,13 @@ services:
         ipv4_address: 192.168.92.179     
     depends_on:
       - ezy-event-api
-
+  ezy-event-web-app:
+    image: johnyoat/ezyevent-web:1.0
+    ports:
+      - "80:80"
+    networks:
+      ezy-network:
+        ipv4_address: 192.168.92.20      
 networks:
   ezy-network:
     ipam:
