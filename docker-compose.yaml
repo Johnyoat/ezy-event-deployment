@@ -4,10 +4,12 @@ services:
     ports:
       - "5432:5432"
     environment:
+      POSTGRES_DB: ezyevents
       POSTGRES_PASSWORD: qigfot-4Sobja-wixjut
       PGDATA: /var/lib/postgressql/data
     volumes:
       - ./postgres:/var/lib/postgressql/data
+      - ./ezyevent.sql:/docker-entrypoint-initdb.d/ezyevent.sql
     restart: always
     networks:
       ezy-network:

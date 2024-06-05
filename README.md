@@ -97,14 +97,9 @@ There's no password for mongodb but there's a password for postgres which is `qi
 db.getCollection('ezyevents-location').createIndex({location:"2dsphere"})
 ```
 
-### Setting Up Postgres
+### Postgres Daatbase
 
-1. create a `ezyevent` database:
-```sql
-createdb ezyevent;
-``` 
-
-2. Load the [sample data](ezyevent.sql) `ezyevent.sql` into the database.
+The deployment creates a database called `ezyevent` and load  [sample data](ezyevent.sql) `ezyevent.sql` into the database.
 
 ### Front-end 
 
@@ -131,6 +126,7 @@ services:
       PGDATA: /var/lib/postgressql/data
     volumes:
       - ./postgres:/var/lib/postgressql/data
+      - ./ezyevent.sql:/docker-entrypoint-initdb.d/ezyevent.sql
     restart: always
     networks:
       ezy-network:
