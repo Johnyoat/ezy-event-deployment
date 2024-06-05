@@ -166,6 +166,7 @@ services:
         ipv4_address: 192.168.92.179     
     depends_on:
       - ezy-event-api
+    restart: on-failure:10  
   ezy-event-web-app:
     image: johnyoat/ezyevent-web:1.0
     ports:
