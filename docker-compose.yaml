@@ -44,6 +44,13 @@ services:
         ipv4_address: 192.168.92.179     
     depends_on:
       - ezy-event-api
+  ezy-event-web-app:
+    image: johnyoat/ezyevent-web:1.0
+    ports:
+      - "80:80"
+    networks:
+      ezy-network:
+        ipv4_address: 192.168.92.20
 networks:
   ezy-network:
     ipam:
