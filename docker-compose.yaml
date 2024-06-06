@@ -38,6 +38,7 @@ services:
         ipv4_address: 192.168.92.17
     depends_on:
       - postgres-database
+    restart: on-failure:20
   ezy-event-location-api:
     image: johnyoat/ezyevent-location-api:1.0
     ports:
