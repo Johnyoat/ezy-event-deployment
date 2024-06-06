@@ -17,7 +17,7 @@ A Docker-based three-tier application for managing events, similar to Eventbrite
     - [Usage](#usage)
   - [Configuration](#configuration)
   - [Services](#services)
-  - [Monitoring](#monitoring)
+  <!-- - [Monitoring](#monitoring) -->
   - [Deployment](#deployment)
   - [Contributing](#contributing)
   - [License](#license)
@@ -32,7 +32,7 @@ This project is a Docker-based three-tier application for managing events. It us
 - Angular front-end for displaying event data.
 - Golang backend for CRUD operations on events and users.
 - MongoDB microservice for location indexing and queries.
-- Integrated monitoring with Linkerd and Prometheus.
+<!-- - Integrated monitoring with Linkerd and Prometheus. -->
 
 ## Architecture
 
@@ -82,24 +82,19 @@ docker-compose down
 
 ## Configuration
 
-There's no password for mongodb but there's a password for postgres which is `qigfot-4Sobja-wixjut` and username `postgres`
+There's no password for mongodb but there's a password for postgres which is `qigfot-4Sobja-wixjut` and username `postgres`. Both databases can be connected with their respective clients from the deployed host.
 
 
- ### Seting Up MongoDB with MongoDB Atlas
+ ### MongoDB Configuration
 
-1. Create a `ezyevents` database and  `ezyevents-location` collection:
+1. Initial Databse `ezyevents` is created from the deployment and import the [sample data](ezyevents.events-location.json) `event-location-data` into `ezyevents-location` collection.
 
-2. Import the [sample data](ezyevents.events-location.json) `ezyevents.events-location.json` into the `ezyevents-location` collection.
+3. A 2DSphere index is created for the collection. You can read more [here](https://www.mongodb.com/docs/manual/core/indexes/index-types/geospatial/2dsphere/)
 
-3. Create a 2DSphere Indexing for the collection. You can read more [here](https://www.mongodb.com/docs/manual/core/indexes/index-types/geospatial/2dsphere/)
 
-```bash
-db.getCollection('ezyevents-location').createIndex({location:"2dsphere"})
-```
+### Postgres Database
 
-### Postgres Daatbase
-
-The deployment creates a database called `ezyevent` and load  [sample data](ezyevent.sql) `ezyevent.sql` into the database.
+The deployment creates a database called `ezyevent` and load  [sample data](ezyevent.sql) `ezyevent.sql` into it.
 
 ### Front-end 
 
@@ -212,10 +207,10 @@ networks:
   - **Depends_on**: `ezy-event-api`
   - **Networks**: `ezy-network` (IP: `192.168.92.179`)
 
-## Monitoring
+<!-- ## Monitoring
 
 - **Linkerd**: Service mesh for observability and security.
-- **Prometheus**: Monitoring and alerting toolkit.
+- **Prometheus**: Monitoring and alerting toolkit. -->
 
 ## Deployment
 
