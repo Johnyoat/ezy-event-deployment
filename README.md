@@ -138,6 +138,7 @@ services:
       - "27017:27017"
     volumes:
       - ./mongo:/data/db
+      ./event-location-data.js:/docker-entrypoint-initdb.d/event-location-data.js:ro
     restart: always
     networks:
       ezy-network:

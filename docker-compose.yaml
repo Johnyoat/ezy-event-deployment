@@ -16,10 +16,13 @@ services:
         ipv4_address: 192.168.92.13
   mongodb:
     image: mongo
+    environment:
+      MONGO_INITDB_DATABASE: ezyevents
     ports:
       - "27017:27017"
     volumes:
       - ./mongo:/data/db
+      - ./event-location-data.js:/docker-entrypoint-initdb.d/event-location-data.js:ro
     restart: always
     networks:
       ezy-network:
@@ -46,7 +49,7 @@ services:
         ipv4_address: 192.168.92.179     
     depends_on:
       - ezy-event-api
-    restart: on-failure:10
+    restart: always
   ezy-event-web-app:
     image: johnyoat/ezyevent-web:1.0
     ports:
