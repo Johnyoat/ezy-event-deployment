@@ -12,8 +12,7 @@ services:
       - ./ezyevent.sql:/docker-entrypoint-initdb.d/ezyevent.sql
     restart: always
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.13
+      - ezy-network
   mongodb:
     image: mongo
     environment:
@@ -25,42 +24,38 @@ services:
       - ./event-location-data.js:/docker-entrypoint-initdb.d/event-location-data.js:ro
     restart: always
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.15
+      - ezy-network
+
   ezy-event-api:
-    image: johnyoat/ezyevent-api:1.0
+    image: johnyoat/ezyevent-api:1.1
     ports:
       - "8080:8080"
     links:
       - postgres-database
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.17
+      - ezy-network
     depends_on:
       - postgres-database
     restart: on-failure:20
   ezy-event-location-api:
-    image: johnyoat/ezyevent-location-api:1.0
+    image: johnyoat/ezyevent-location-api:1.1
     ports:
       - "8081:8081"
     links:
       - "ezy-event-api"
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.179     
+      - ezy-network 
     depends_on:
       - ezy-event-api
     restart: always
   ezy-event-web-app:
-    image: johnyoat/ezyevent-web:1.0
+    image: johnyoat/ezyevent-web:1.1
     ports:
       - "80:80"
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.20
+      - ezy-network
+    depends_on:
+      - ezy-event-api  
 networks:
   ezy-network:
-    ipam:
-      driver: default
-      config:
-        - subnet: "192.168.92.0/24"
+    driver: bridge 

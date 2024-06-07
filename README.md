@@ -2,10 +2,11 @@
 
 A Docker-based three-tier application for managing events, similar to Eventbrite. The application features an Angular front-end, a Golang backend, and a MongoDB-based microservice for location indexing and queries. Integrated monitoring is provided by Linkerd and Prometheus.
 
+### [Demo Link](http://3.79.105.211)
+
 ![screenshot](https://res.cloudinary.com/plartfomx/image/upload/v1717611740/zagtyuep1qc8cmr0ytgc.png)
 
 ## Table of Contents
-
 - [Event Management Application](#event-management-application)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
@@ -117,6 +118,7 @@ services:
     ports:
       - "5432:5432"
     environment:
+      POSTGRES_DB: ezyevents
       POSTGRES_PASSWORD: qigfot-4Sobja-wixjut
       PGDATA: /var/lib/postgressql/data
     volumes:
@@ -124,93 +126,125 @@ services:
       - ./ezyevent.sql:/docker-entrypoint-initdb.d/ezyevent.sql
     restart: always
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.13
-
+      - ezy-network
   mongodb:
     image: mongo
+    environment:
+      MONGO_INITDB_DATABASE: ezyevents
     ports:
       - "27017:27017"
     volumes:
       - ./mongo:/data/db
-      ./event-location-data.js:/docker-entrypoint-initdb.d/event-location-data.js:ro
+      - ./event-location-data.js:/docker-entrypoint-initdb.d/event-location-data.js:ro
     restart: always
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.15
+      - ezy-network
 
   ezy-event-api:
-    image: johnyoat/ezyevent-api:1.0
+    image: johnyoat/ezyevent-api:1.1
     ports:
       - "8080:8080"
     links:
       - postgres-database
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.17
+      - ezy-network
     depends_on:
       - postgres-database
-
+    restart: on-failure:20
   ezy-event-location-api:
-    image: johnyoat/ezyevent-location-api:1.0
+    image: johnyoat/ezyevent-location-api:1.1
     ports:
       - "8081:8081"
     links:
       - "ezy-event-api"
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.179     
+      - ezy-network 
     depends_on:
       - ezy-event-api
-    restart: on-failure:20  
+    restart: always
   ezy-event-web-app:
-    image: johnyoat/ezyevent-web:1.0
+    image: johnyoat/ezyevent-web:1.1
     ports:
       - "80:80"
     networks:
-      ezy-network:
-        ipv4_address: 192.168.92.20      
+      - ezy-network
+    depends_on:
+      - ezy-event-api  
 networks:
   ezy-network:
-    ipam:
-      driver: default
-      config:
-        - subnet: "192.168.92.0/24"
+    driver: bridge 
 ```
 
-- **postgres-database**: PostgreSQL database for storing event and user data.
-  - **Image**: `postgres:alpine`
-  - **Ports**: `5432:5432`
-  - **Environment Variables**:
-    - `POSTGRES_PASSWORD`: Password for the PostgreSQL user.
-    - `PGDATA`: Directory for storing database data.
-  - **Volumes**: `./postgres:/var/lib/postgressql/data`
-  - **Networks**: `ezy-network` (IP: `192.168.92.13`)
+#### `postgres-database`
+- **Image**: `postgres:alpine`
+  - Uses the lightweight Alpine-based PostgreSQL image.
+- **Ports**: `5432:5432`
+  - Maps port 5432 on the host to port 5432 in the container.
+- **Environment Variables**:
+  - `POSTGRES_DB`: `ezyevents`
+  - `POSTGRES_PASSWORD`: `qigfot-4Sobja-wixjut`
+  - `PGDATA`: `/var/lib/postgressql/data`
+- **Volumes**:
+  - `./postgres:/var/lib/postgressql/data`
+  - `./ezyevent.sql:/docker-entrypoint-initdb.d/ezyevent.sql`
+- **Restart Policy**: `always`
+  - Always restarts the container if it stops.
+- **Network**: `ezy-network`
 
-- **mongodb**: MongoDB service for location indexing and queries.
-  - **Image**: `mongo`
-  - **Ports**: `27017:27017`
-  - **Volumes**: `./mongo:/data/db`
-  - **Networks**: `ezy-network` (IP: `192.168.92.15`)
+#### `mongodb`
+- **Image**: `mongo`
+  - Uses the official MongoDB image.
+- **Environment Variable**:
+  - `MONGO_INITDB_DATABASE`: `ezyevents`
+- **Ports**: `27017:27017`
+  - Maps port 27017 on the host to port 27017 in the container.
+- **Volumes**:
+  - `./mongo:/data/db`
+  - `./event-location-data.js:/docker-entrypoint-initdb.d/event-location-data.js:ro`
+- **Restart Policy**: `always`
+  - Always restarts the container if it stops.
+- **Network**: `ezy-network`
 
-- **ezy-event-api**: Golang application for CRUD operations on events and users.
-  - **Image**: `johnyoat/ezyevent-api:1.0`
-  - **Ports**: `8080:8080`
-  - **Links**: `postgres-database`
-  - **Depends_on**: `postgres-database`
-  - **Networks**: `ezy-network` (IP: `192.168.92.17`)
+#### `ezy-event-api`
+- **Image**: `johnyoat/ezyevent-api:1.1`
+  - Custom image for the EzyEvent API.
+- **Ports**: `8080:8080`
+  - Maps port 8080 on the host to port 8080 in the container.
+- **Links**: `postgres-database`
+  - Links to the PostgreSQL database service.
+- **Network**: `ezy-network`
+- **Depends On**: `postgres-database`
+  - Ensures the database starts before this service.
+- **Restart Policy**: `on-failure:20`
+  - Restarts up to 20 times on failure.
 
-- **ezy-event-location-api**: Golang microservice for handling event locations.
-  - **Image**: `johnyoat/ezyevent-location-api:1.0`
-  - **Ports**: `8081:8081`
-  - **Links**: `ezy-event-api`
-  - **Depends_on**: `ezy-event-api`
-  - **Networks**: `ezy-network` (IP: `192.168.92.179`)
+#### `ezy-event-location-api`
+- **Image**: `johnyoat/ezyevent-location-api:1.1`
+  - Custom image for the EzyEvent Location API.
+- **Ports**: `8081:8081`
+  - Maps port 8081 on the host to port 8081 in the container.
+- **Links**: `ezy-event-api`
+  - Links to the EzyEvent API service.
+- **Network**: `ezy-network`
+- **Depends On**: `ezy-event-api`
+  - Ensures the EzyEvent API starts before this service.
+- **Restart Policy**: `always`
+  - Always restarts the container if it stops.
 
-<!-- ## Monitoring
+#### `ezy-event-web-app`
+- **Image**: `johnyoat/ezyevent-web:1.1`
+  - Custom image for the EzyEvent web application.
+- **Ports**: `80:80`
+  - Maps port 80 on the host to port 80 in the container.
+- **Network**: `ezy-network`
+- **Depends On**: `ezy-event-api`
+  - Ensures the EzyEvent API starts before this service.
 
-- **Linkerd**: Service mesh for observability and security.
-- **Prometheus**: Monitoring and alerting toolkit. -->
+### Network
+
+#### `ezy-network`
+- **Driver**: `bridge`
+  - Creates an isolated network for the services.
 
 ## Deployment
 
