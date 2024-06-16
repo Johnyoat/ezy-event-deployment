@@ -163,7 +163,7 @@ services:
       - ezy-event-api
     restart: always
   ezy-event-web-app:
-    image: johnyoat/ezyevent-web:1.1
+    image: johnyoat/ezyevent-web:1.2
     ports:
       - "80:80"
     networks:
@@ -232,7 +232,7 @@ networks:
   - Always restarts the container if it stops.
 
 #### `ezy-event-web-app`
-- **Image**: `johnyoat/ezyevent-web:1.1`
+- **Image**: `johnyoat/ezyevent-web:1.2`
   - Custom image for the EzyEvent web application.
 - **Ports**: `80:80`
   - Maps port 80 on the host to port 80 in the container.
